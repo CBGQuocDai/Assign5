@@ -1,0 +1,266 @@
+# ── Shared DB environment ─────────────────────────────────────────────────────
+x-db-env: &db-env
+  DB_HOST: postgres
+
+# ── Reusable depends_on postgres ─────────────────────────────────────────────
+x-depends-db: &depends-db
+  depends_on:
+    postgres:
+      condition: service_healthy
+
+services:
+
+  # ── PostgreSQL ────────────────────────────────────────────────────────────
+  postgres:
+    image: postgres:15-alpine
+    container_name: bookstore-postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: "12345"
+      POSTGRES_DB: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # ── staff-service (:8001) ─────────────────────────────────────────────────
+  staff-service:
+    build:
+      context: .
+      dockerfile: staff-service/Dockerfile
+    container_name: staff-service
+    environment:
+      <<: *db-env
+    ports:
+      - "8001:8001"
+    <<: *depends-db
+    command: >
+      sh -c "python manage.py migrate --run-syncdb &&
+             python manage.py seed_data &&
+             python manage.py runserver 0.0.0.0:8001"
+
+  # ── manager-service (:8002) ───────────────────────────────────────────────
+  manager-service:
+    build:
+      context: .
+      dockerfile: manager-service/Dockerfile
+    container_name: manager-service
+    environment:
+      <<: *db-env
+    ports:
+      - "8002:8002"
+    <<: *depends-db
+    command: >
+      sh -c "python manage.py migrate --run-syncdb &&
+             python manage.py seed_data &&
+             python manage.py runserver 0.0.0.0:8002"
+
+  # ── customer-service (:8003) ──────────────────────────────────────────────
+  customer-service:
+    build:
+      context: .
+      dockerfile: customer-service/Dockerfile
+    container_name: customer-service
+    environment:
+      <<: *db-env
+      CART_SERVICE_URL: http://cart-service:8006
+    ports:
+      - "8003:8003"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      cart-service:
+        condition: service_started
+    command: >
+      sh -c "python manage.py migrate --run-syncdb &&
+             python manage.py seed_data &&
+             python manage.py runserver 0.0.0.0:8003"
+
+  # ── catalog-service (:8004) ───────────────────────────────────────────────
+  catalog-service:
+    build:
+      context: .
+      dockerfile: catalog-service/Dockerfile
+    container_name: catalog-service
+    environment:
+      <<: *db-env
+    ports:
+      - "8004:8004"
+    <<: *depends-db
+    command: >
+      sh -c "python manage.py migrate --run-syncdb &&
+             python manage.py seed_data &&
+             python manage.py runserver 0.0.0.0:8004"
+
+  # ── book-service (:8005) ──────────────────────────────────────────────────
+  book-service:
+    build:
+      context: .
+      dockerfile: book-service/Dockerfile
+    container_name: book-service
+    environment:
+      <<: *db-env
+    ports:
+      - "8005:8005"
+    <<: *depends-db
+    command: >
+      sh -c "python manage.py migrate --run-syncdb &&
+             python manage.py seed_data &&
+             python manage.py runserver 0.0.0.0:8005"
+
+  # ── cart-service (:8006) ──────────────────────────────────────────────────
+  cart-service:
+    build:
+      context: .
+      dockerfile: cart-service/Dockerfile
+    container_name: cart-service
+    environment:
+      <<: *db-env
+    ports:
+      - "8006:8006"
+    <<: *depends-db
+    command: >
+      sh -c "python manage.py migrate --run-syncdb &&
+             python manage.py seed_data &&
+             python manage.py runserver 0.0.0.0:8006"
+
+  # ── order-service (:8007) ─────────────────────────────────────────────────
+  order-service:
+    build:
+      context: .
+      dockerfile: order-service/Dockerfile
+    container_name: order-service
+    environment:
+      <<: *db-env
+      PAY_SERVICE_URL: http://pay-service:8009
+      SHIP_SERVICE_URL: http://ship-service:8008
+    ports:
+      - "8007:8007"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      pay-service:
+        condition: service_started
+      ship-service:
+        condition: service_started
+    command: >
+      sh -c "python manage.py migrate --run-syncdb &&
+             python manage.py seed_data &&
+             python manage.py runserver 0.0.0.0:8007"
+
+  # ── ship-service (:8008) ──────────────────────────────────────────────────
+  ship-service:
+    build:
+      context: .
+      dockerfile: ship-service/Dockerfile
+    container_name: ship-service
+    environment:
+      <<: *db-env
+    ports:
+      - "8008:8008"
+    <<: *depends-db
+    command: >
+      sh -c "python manage.py migrate --run-syncdb &&
+             python manage.py seed_data &&
+             python manage.py runserver 0.0.0.0:8008"
+
+  # ── pay-service (:8009) ───────────────────────────────────────────────────
+  pay-service:
+    build:
+      context: .
+      dockerfile: pay-service/Dockerfile
+    container_name: pay-service
+    environment:
+      <<: *db-env
+    ports:
+      - "8009:8009"
+    <<: *depends-db
+    command: >
+      sh -c "python manage.py migrate --run-syncdb &&
+             python manage.py seed_data &&
+             python manage.py runserver 0.0.0.0:8009"
+
+  # ── comment-rate-service (:8010) ──────────────────────────────────────────
+  comment-rate-service:
+    build:
+      context: .
+      dockerfile: comment-rate-service/Dockerfile
+    container_name: comment-rate-service
+    environment:
+      <<: *db-env
+    ports:
+      - "8010:8010"
+    <<: *depends-db
+    command: >
+      sh -c "python manage.py migrate --run-syncdb &&
+             python manage.py seed_data &&
+             python manage.py runserver 0.0.0.0:8010"
+
+  # ── recommender-ai-service (:8011) ────────────────────────────────────────
+  recommender-ai-service:
+    build:
+      context: .
+      dockerfile: recommender-ai-service/Dockerfile
+    container_name: recommender-ai-service
+    environment:
+      <<: *db-env
+      BOOK_SERVICE_URL: http://book-service:8005
+      REVIEW_SERVICE_URL: http://comment-rate-service:8010
+    ports:
+      - "8011:8011"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      book-service:
+        condition: service_started
+      comment-rate-service:
+        condition: service_started
+    command: >
+      sh -c "python manage.py migrate --run-syncdb &&
+             python manage.py seed_data &&
+             python manage.py runserver 0.0.0.0:8011"
+
+  # ── api-gateway (:8000) ───────────────────────────────────────────────────
+  api-gateway:
+    build:
+      context: .
+      dockerfile: api-gateway/Dockerfile
+    container_name: api-gateway
+    environment:
+      STAFF_SERVICE_URL:        http://staff-service:8001
+      MANAGER_SERVICE_URL:      http://manager-service:8002
+      CUSTOMER_SERVICE_URL:     http://customer-service:8003
+      CATALOG_SERVICE_URL:      http://catalog-service:8004
+      BOOK_SERVICE_URL:         http://book-service:8005
+      CART_SERVICE_URL:         http://cart-service:8006
+      ORDER_SERVICE_URL:        http://order-service:8007
+      SHIP_SERVICE_URL:         http://ship-service:8008
+      PAY_SERVICE_URL:          http://pay-service:8009
+      COMMENT_RATE_SERVICE_URL: http://comment-rate-service:8010
+      RECOMMENDER_SERVICE_URL:  http://recommender-ai-service:8011
+    ports:
+      - "8000:8000"
+    depends_on:
+      - staff-service
+      - manager-service
+      - customer-service
+      - catalog-service
+      - book-service
+      - cart-service
+      - order-service
+      - ship-service
+      - pay-service
+      - comment-rate-service
+      - recommender-ai-service
+    command: >
+      sh -c "python manage.py migrate &&
+             python manage.py runserver 0.0.0.0:8000"
+
+volumes:
+  postgres_data:

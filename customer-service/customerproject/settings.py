@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -29,7 +30,7 @@ DATABASES = {
         'NAME': 'customer_db',
         'USER': 'postgres',
         'PASSWORD': '12345',
-        'HOST': 'localhost',
+        'HOST': os.environ.get('DB_HOST', 'localhost'),
         'PORT': '5432',
     }
 }
@@ -43,4 +44,4 @@ CORS_ALLOW_ALL_ORIGINS = True
 REST_FRAMEWORK = {'DEFAULT_RENDERER_CLASSES': ['rest_framework.renderers.JSONRenderer']}
 
 # Cart-service URL (called on customer registration)
-CART_SERVICE_URL = 'http://localhost:8006'
+CART_SERVICE_URL = os.environ.get('CART_SERVICE_URL', 'http://localhost:8006')

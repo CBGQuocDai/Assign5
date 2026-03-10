@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -66,15 +67,15 @@ CORS_ALLOW_ALL_ORIGINS = True
 
 # Microservice URLs
 SERVICES = {
-    'staff':        'http://localhost:8001',
-    'manager':      'http://localhost:8002',
-    'customer':     'http://localhost:8003',
-    'catalog':      'http://localhost:8004',
-    'book':         'http://localhost:8005',
-    'cart':         'http://localhost:8006',
-    'order':        'http://localhost:8007',
-    'ship':         'http://localhost:8008',
-    'pay':          'http://localhost:8009',
-    'comment_rate': 'http://localhost:8010',
-    'recommender':  'http://localhost:8011',
+    'staff':        os.environ.get('STAFF_SERVICE_URL',        'http://localhost:8001'),
+    'manager':      os.environ.get('MANAGER_SERVICE_URL',      'http://localhost:8002'),
+    'customer':     os.environ.get('CUSTOMER_SERVICE_URL',     'http://localhost:8003'),
+    'catalog':      os.environ.get('CATALOG_SERVICE_URL',      'http://localhost:8004'),
+    'book':         os.environ.get('BOOK_SERVICE_URL',         'http://localhost:8005'),
+    'cart':         os.environ.get('CART_SERVICE_URL',         'http://localhost:8006'),
+    'order':        os.environ.get('ORDER_SERVICE_URL',        'http://localhost:8007'),
+    'ship':         os.environ.get('SHIP_SERVICE_URL',         'http://localhost:8008'),
+    'pay':          os.environ.get('PAY_SERVICE_URL',          'http://localhost:8009'),
+    'comment_rate': os.environ.get('COMMENT_RATE_SERVICE_URL', 'http://localhost:8010'),
+    'recommender':  os.environ.get('RECOMMENDER_SERVICE_URL',  'http://localhost:8011'),
 }

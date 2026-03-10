@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -29,7 +30,7 @@ DATABASES = {
         'NAME': 'order_db',
         'USER': 'postgres',
         'PASSWORD': '12345',
-        'HOST': 'localhost',
+        'HOST': os.environ.get('DB_HOST', 'localhost'),
         'PORT': '5432',
     }
 }
@@ -42,5 +43,5 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 CORS_ALLOW_ALL_ORIGINS = True
 REST_FRAMEWORK = {'DEFAULT_RENDERER_CLASSES': ['rest_framework.renderers.JSONRenderer']}
 
-PAY_SERVICE_URL = 'http://localhost:8009'
-SHIP_SERVICE_URL = 'http://localhost:8008'
+PAY_SERVICE_URL = os.environ.get('PAY_SERVICE_URL', 'http://localhost:8009')
+SHIP_SERVICE_URL = os.environ.get('SHIP_SERVICE_URL', 'http://localhost:8008')
