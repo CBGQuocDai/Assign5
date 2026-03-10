@@ -1,0 +1,44 @@
+{% extends 'staff/base.html' %}
+{% block title %}Mã giảm giá{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h4 class="fw-bold mb-0"><i class="bi bi-ticket-perforated"></i> Mã giảm giá</h4>
+  <a href="{% url 'staff_coupon_add' %}" class="btn btn-danger"><i class="bi bi-plus-lg"></i> Thêm mã</a>
+</div>
+<div class="card">
+  <table class="table table-hover mb-0">
+    <thead class="table-light">
+      <tr>
+        <th>#</th>
+        <th>Mã</th>
+        <th>Loại giảm</th>
+        <th>Giá trị</th>
+        <th>Đơn tối thiểu</th>
+        <th>Hiệu lực</th>
+        <th>Trạng thái</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for c in coupons %}
+      <tr>
+        <td>{{ c.id }}</td>
+        <td><code class="fw-bold">{{ c.code }}</code></td>
+        <td>{% if c.discount_type == 'percentage' %}Phần trăm{% else %}Số tiền{% endif %}</td>
+        <td>{{ c.discount_value }}{% if c.discount_type == 'percentage' %}%{% else %}${% endif %}</td>
+        <td>{{ c.min_order_amount }}$</td>
+        <td class="small">{{ c.valid_from|slice:":10" }} → {{ c.valid_to|slice:":10" }}</td>
+        <td>
+          {% if c.is_active %}
+            <span class="badge bg-success">Hoạt động</span>
+          {% else %}
+            <span class="badge bg-secondary">Tắt</span>
+          {% endif %}
+        </td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="7" class="text-center text-muted py-3">Chưa có mã giảm giá</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

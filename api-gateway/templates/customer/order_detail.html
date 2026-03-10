@@ -1,0 +1,74 @@
+{% extends 'customer/base.html' %}
+{% block title %}Chi tiết đơn hàng #{{ order.id }}{% endblock %}
+{% block content %}
+<div class="d-flex align-items-center mb-4 gap-3">
+  <a href="{% url 'order_list' %}" class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-left"></i> Quay lại</a>
+  <h3 class="fw-bold mb-0">Đơn hàng #{{ order.id }}</h3>
+</div>
+
+<div class="row g-4">
+  <div class="col-md-7">
+    <div class="card p-3 mb-3">
+      <h5 class="fw-bold">Sản phẩm</h5>
+      <hr>
+      {% for item in order.items %}
+      <div class="d-flex justify-content-between mb-2">
+        <span>{{ item.book_id }} <span class="badge bg-secondary">x{{ item.quantity }}</span></span>
+        <strong>{{ item.price }}$</strong>
+      </div>
+      {% endfor %}
+      <hr>
+      <div class="d-flex justify-content-between fw-bold fs-5">
+        <span>Tổng cộng</span>
+        <span class="text-danger">{{ order.total_amount }}$</span>
+      </div>
+    </div>
+    <div class="card p-3">
+      <h5 class="fw-bold">Địa chỉ giao hàng</h5>
+      <p class="mb-0">{{ order.shipping_address }}</p>
+    </div>
+  </div>
+
+  <div class="col-md-5">
+    {% if payment %}
+    <div class="card p-3 mb-3">
+      <h5 class="fw-bold"><i class="bi bi-credit-card"></i> Thanh toán</h5>
+      <hr>
+      <p class="mb-1"><strong>Phương thức:</strong> {{ payment.method_name }}</p>
+      <p class="mb-1"><strong>Số tiền:</strong> {{ payment.amount }}$</p>
+      <p class="mb-1"><strong>Mã giao dịch:</strong> <code>{{ payment.transaction_id }}</code></p>
+      <p class="mb-0"><strong>Trạng thái:</strong>
+        {% if payment.status == 'paid' %}
+          <span class="badge bg-success">Đã thanh toán</span>
+        {% elif payment.status == 'pending' %}
+          <span class="badge bg-warning text-dark">Chờ thanh toán</span>
+        {% else %}
+          <span class="badge bg-secondary">{{ payment.status }}</span>
+        {% endif %}
+      </p>
+    </div>
+    {% endif %}
+
+    {% if shipment %}
+    <div class="card p-3">
+      <h5 class="fw-bold"><i class="bi bi-truck"></i> Vận chuyển</h5>
+      <hr>
+      <p class="mb-1"><strong>Người nhận:</strong> {{ shipment.recipient_name }}</p>
+      <p class="mb-1"><strong>SĐT:</strong> {{ shipment.phone }}</p>
+      <p class="mb-1"><strong>Mã vận đơn:</strong> <code>{{ shipment.tracking_number }}</code></p>
+      <p class="mb-0"><strong>Trạng thái:</strong>
+        {% if shipment.status == 'delivered' %}
+          <span class="badge bg-success">Đã giao</span>
+        {% elif shipment.status == 'in_transit' %}
+          <span class="badge bg-primary">Đang vận chuyển</span>
+        {% elif shipment.status == 'pending' %}
+          <span class="badge bg-warning text-dark">Chờ lấy hàng</span>
+        {% else %}
+          <span class="badge bg-secondary">{{ shipment.status }}</span>
+        {% endif %}
+      </p>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

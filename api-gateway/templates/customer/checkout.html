@@ -1,0 +1,67 @@
+{% extends 'customer/base.html' %}
+{% block title %}Thanh toán{% endblock %}
+{% block content %}
+<h3 class="fw-bold mb-4"><i class="bi bi-credit-card"></i> Thanh toán</h3>
+<form method="post" action="{% url 'place_order' %}">
+{% csrf_token %}
+<div class="row g-4">
+  <!-- Left: order items -->
+  <div class="col-md-5">
+    <div class="card p-3">
+      <h5 class="fw-bold">Sản phẩm</h5>
+      <hr>
+      {% for item in items %}
+      <div class="d-flex justify-content-between mb-2">
+        <span>{{ item.book.title }} <span class="badge bg-secondary">x{{ item.quantity }}</span></span>
+        <strong>{{ item.subtotal|floatformat:2 }}$</strong>
+      </div>
+      {% endfor %}
+      <hr>
+      <div class="d-flex justify-content-between fw-bold">
+        <span>Tổng cộng</span>
+        <span class="text-danger" id="finalTotal">{{ total|floatformat:2 }}$</span>
+      </div>
+    </div>
+  </div>
+  <!-- Right: payment details -->
+  <div class="col-md-7">
+    <div class="card p-3 mb-3">
+      <h5 class="fw-bold">Địa chỉ giao hàng</h5>
+      <textarea name="shipping_address" class="form-control" rows="2" placeholder="Nhập địa chỉ nhận hàng..." required></textarea>
+    </div>
+    <div class="card p-3 mb-3">
+      <h5 class="fw-bold">Phương thức vận chuyển</h5>
+      {% for m in ship_methods %}
+      <div class="form-check">
+        <input class="form-check-input" type="radio" name="shipping_method" id="ship{{ m.id }}" value="{{ m.id }}" {% if forloop.first %}checked{% endif %}>
+        <label class="form-check-label" for="ship{{ m.id }}">
+          {{ m.name }} — <span class="text-muted">{{ m.price }}$ ({{ m.estimated_days }} ngày)</span>
+        </label>
+      </div>
+      {% endfor %}
+    </div>
+    <div class="card p-3 mb-3">
+      <h5 class="fw-bold">Phương thức thanh toán</h5>
+      {% for m in pay_methods %}
+      <div class="form-check">
+        <input class="form-check-input" type="radio" name="payment_method" id="pay{{ m.id }}" value="{{ m.id }}" {% if forloop.first %}checked{% endif %}>
+        <label class="form-check-label" for="pay{{ m.id }}">{{ m.name }}</label>
+      </div>
+      {% endfor %}
+    </div>
+    <div class="card p-3 mb-3">
+      <h5 class="fw-bold">Mã giảm giá</h5>
+      <select name="coupon_id" class="form-select">
+        <option value="">-- Không sử dụng --</option>
+        {% for c in coupons %}
+        <option value="{{ c.id }}">{{ c.code }} — giảm {{ c.discount_value }}{% if c.discount_type == 'percentage' %}%{% else %}${% endif %}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <button type="submit" class="btn btn-danger w-100 py-2 fw-bold">
+      <i class="bi bi-bag-check"></i> Đặt hàng
+    </button>
+  </div>
+</div>
+</form>
+{% endblock %}

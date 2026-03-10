@@ -1,0 +1,54 @@
+{% extends 'staff/base.html' %}
+{% block title %}{{ action }} mã giảm giá{% endblock %}
+{% block content %}
+<div class="d-flex align-items-center mb-4 gap-3">
+  <a href="{% url 'staff_coupon_list' %}" class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-left"></i></a>
+  <h4 class="fw-bold mb-0">{{ action }} mã giảm giá</h4>
+</div>
+<div class="card p-4" style="max-width:600px">
+  <form method="post">
+    {% csrf_token %}
+    <div class="row g-3">
+      <div class="col-md-6">
+        <label class="form-label fw-semibold">Mã code <span class="text-danger">*</span></label>
+        <input type="text" name="code" class="form-control text-uppercase" placeholder="SUMMER25" required>
+      </div>
+      <div class="col-md-6">
+        <label class="form-label fw-semibold">Loại giảm giá</label>
+        <select name="discount_type" class="form-select">
+          <option value="percentage">Phần trăm (%)</option>
+          <option value="fixed">Số tiền cố định ($)</option>
+        </select>
+      </div>
+      <div class="col-md-6">
+        <label class="form-label fw-semibold">Giá trị giảm <span class="text-danger">*</span></label>
+        <input type="number" name="discount_value" class="form-control" step="0.01" min="0" required>
+      </div>
+      <div class="col-md-6">
+        <label class="form-label fw-semibold">Đơn hàng tối thiểu ($)</label>
+        <input type="number" name="min_order_amount" class="form-control" step="0.01" min="0" value="0">
+      </div>
+      <div class="col-md-6">
+        <label class="form-label fw-semibold">Ngày bắt đầu</label>
+        <input type="date" name="valid_from" class="form-control">
+      </div>
+      <div class="col-md-6">
+        <label class="form-label fw-semibold">Ngày kết thúc</label>
+        <input type="date" name="valid_to" class="form-control">
+      </div>
+      <div class="col-12">
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" name="is_active" id="isActive" checked>
+          <label class="form-check-label" for="isActive">Kích hoạt ngay</label>
+        </div>
+      </div>
+      <div class="col-12 d-flex gap-2">
+        <button type="submit" class="btn btn-danger px-4">
+          <i class="bi bi-check-lg"></i> Lưu
+        </button>
+        <a href="{% url 'staff_coupon_list' %}" class="btn btn-outline-secondary">Hủy</a>
+      </div>
+    </div>
+  </form>
+</div>
+{% endblock %}

@@ -1,0 +1,31 @@
+tạo một ứng dụng bookstore theo kiến trúc micro-service gồm 12-service 
+1. staff-service
+2. manager-service
+3. customer-service
+4. catalog-service
+5. book-service
+6. cart-service
+7. order-service
+8. ship-service
+9. pay-service
+10. comment-rate-service
+11. recommender-ai-service
+12. api-gateway
+. Hệ thống cần đảm bảo các yêu cầu về chức năng: 
+1. Customer registration automatically creates a cart.
+2. Staff manages books.
+3. Customer adds books to cart, view cart, update cart.
+4. Order triggers payment and shipping, customer select pay, ship.
+5. Customer can rate books 
+6. Quản lý phiếu giảm giá. 
+api-gateway sẽ chứa template. cần chia 2 layout riêng cho staff và customer. sử dụng backgourd trắng 
+Công nghệ sử dụng: 
+django + postgres
+thông tin cơ sở dữ liệu user = postgres
+password = 12345
+port=5432
+host local
+db chạy trong docker PS D:\Software-Analysis-Design\assign5> docker ps 
+CONTAINER ID   IMAGE      COMMAND                  CREATED         STATUS         PORTS                    NAMES
+5f78e2260036   postgres   "docker-entrypoint.s…"   4 minutes ago   Up 4 minutes   0.0.0.0:5432->5432/tcp   some-postgres
+Trong quá trình khởi tạo, tạo mỗi service một db riêng trong postgres và chèn vào mỗi bảng 10 bản ghi. đảm bảo các bản ghi khớp với nhau về khóa ngoại

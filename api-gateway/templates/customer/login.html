@@ -1,0 +1,26 @@
+{% extends 'customer/base.html' %}
+{% block title %}Đăng nhập{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-5">
+    <div class="card p-4 mt-5">
+      <h3 class="text-center fw-bold mb-4"><i class="bi bi-person-circle text-danger"></i> Đăng nhập</h3>
+      <form method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+          <label class="form-label">Email</label>
+          <input type="email" name="email" class="form-control" required>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Mật khẩu</label>
+          <input type="password" name="password" class="form-control" required>
+        </div>
+        <button type="submit" class="btn btn-danger w-100">Đăng nhập</button>
+      </form>
+      <hr>
+      <p class="text-center mb-0">Chưa có tài khoản? <a href="{% url 'customer_register' %}">Đăng ký</a></p>
+      <p class="text-center mt-2"><a href="{% url 'staff_login' %}">Vào trang nhân viên →</a></p>
+    </div>
+  </div>
+</div>
+{% endblock %}
